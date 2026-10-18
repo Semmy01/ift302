@@ -1,11 +1,8 @@
 <?php
 /**
- * Shared MySQLi connection for UIISP pages.
- *
- * Bridges legacy calls to the new config/Database.php singleton.
+ * UIISP Database Connection Include
  */
-
-require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../Model/Database.php';
 
 if (!function_exists('getDbConnection')) {
     function getDbConnection(): mysqli
