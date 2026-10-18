@@ -8,10 +8,10 @@ if ($portalPage === 'dashboard'):
     $mobileMenuId = 'portal-dashboard-mobile-nav';
     $mobileMenuBreakpoint = 'lg';
     $mobileMenuLinks = [
-        ['label' => 'Dashboard', 'href' => 'index.php?url=dashboard', 'current' => true],
-        ['label' => 'Packages', 'href' => 'index.php?url=home#packages'],
-        ['label' => 'Subscriptions', 'href' => 'index.php?url=payment'],
-        ['label' => 'Logout', 'href' => 'index.php?url=auth/logout'],
+        ['label' => 'Dashboard', 'href' => 'subscriber-dashboard.php', 'current' => true],
+        ['label' => 'Packages', 'href' => 'index.php#packages'],
+        ['label' => 'Subscriptions', 'href' => 'subscription-payment.php'],
+        ['label' => 'Logout', 'href' => 'logout.php'],
     ];
 ?>
 <header class="page-header portal-header">
@@ -24,25 +24,25 @@ if ($portalPage === 'dashboard'):
 </div>
 <div>
 <span>UIISP Portal</span>
-<span>University of Ibadan ITeMS</span>
+<span>University of Ibadan ISP</span>
 </div>
 </a>
 <!-- Desktop Navigation Items -->
 <nav class="desktop-nav">
-<a href="index.php?url=dashboard">Dashboard</a>
-<a href="index.php?url=home#packages">Packages</a>
-<a href="index.php?url=payment">Subscriptions</a>
-<a href="index.php?url=auth/logout">Logout</a>
+<a href="subscriber-dashboard.php">Dashboard</a>
+<a href="index.php#packages">Packages</a>
+<a href="subscription-payment.php">Subscriptions</a>
+<a href="logout.php">Logout</a>
 </nav>
 <?php include __DIR__ . '/mobile-menu.php'; ?>
 </div>
-<!-- Right: Trailing Actions, Notifications, & Profile Anchor -->
-<div class="header-actions">
+<!-- Right: Quick Status & Profile Info -->
+<div class="portal-profile">
 <button aria-label="Notifications" type="button">
 <span class="material-symbols-outlined">notifications</span>
 <span></span>
 </button>
-<a href="index.php?url=auth/logout" title="Logout" style="color:inherit; text-decoration:none;">
+<a href="logout.php" title="Logout" style="color:inherit; text-decoration:none;">
 <button aria-label="Logout" type="button">
 <span class="material-symbols-outlined">logout</span>
 </button>
@@ -61,13 +61,14 @@ if ($portalPage === 'dashboard'):
 </div>
 </div>
 </header>
-<?php else:
+<?php
+elseif ($portalPage === 'checkout'):
     $mobileMenuId = 'portal-checkout-mobile-nav';
     $mobileMenuBreakpoint = 'md';
     $mobileMenuLinks = [
-        ['label' => 'Packages', 'href' => 'index.php?url=home#packages', 'current' => true],
-        ['label' => 'Dashboard', 'href' => 'index.php?url=dashboard'],
-        ['label' => 'Logout', 'href' => 'index.php?url=auth/logout'],
+        ['label' => 'Packages', 'href' => 'index.php#packages', 'current' => true],
+        ['label' => 'Dashboard', 'href' => 'subscriber-dashboard.php'],
+        ['label' => 'Logout', 'href' => 'logout.php'],
     ];
 ?>
 <header class="page-header portal-header">
@@ -79,24 +80,24 @@ if ($portalPage === 'dashboard'):
 <span class="material-symbols-outlined" data-icon="wifi_protected_setup">wifi_protected_setup</span>
 </div>
 <div>
-<span>UIISP Portal</span>
-<span>ITeMS Campus Network</span>
+<span>UIISP Gateway</span>
+<span>University of Ibadan ISP</span>
 </div>
 </a>
 </div>
 <!-- Navigation Links -->
 <nav class="desktop-nav">
-<a href="index.php?url=home#packages">Packages</a>
-<a href="index.php?url=dashboard">Dashboard</a>
-<a href="index.php?url=auth/logout">Logout</a>
+<a href="index.php#packages">Packages</a>
+<a href="subscriber-dashboard.php">Dashboard</a>
+<a href="logout.php">Logout</a>
 </nav>
 <?php include __DIR__ . '/mobile-menu.php'; ?>
 <!-- Trailing Cluster -->
-<div class="header-actions">
+<div class="portal-profile">
 <button title="Notifications" type="button">
 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
 </button>
-<a href="index.php?url=auth/logout" title="Logout" style="color:inherit; text-decoration:none;">
+<a href="logout.php" title="Logout" style="color:inherit; text-decoration:none;">
 <button title="Logout" type="button">
 <span class="material-symbols-outlined" data-icon="logout">logout</span>
 </button>
