@@ -1,19 +1,24 @@
-<?php if ($portalPage === 'dashboard'):
+<?php
+$currentUser = [
+    'fullname' => $_SESSION['fullname'] ?? 'Engr. Damilola Adeleke',
+    'matric'   => $_SESSION['matric'] ?? 'STF/2019/4821',
+];
+
+if ($portalPage === 'dashboard'):
     $mobileMenuId = 'portal-dashboard-mobile-nav';
     $mobileMenuBreakpoint = 'lg';
     $mobileMenuLinks = [
-        ['label' => 'Dashboard', 'href' => '#', 'current' => true],
-        ['label' => 'Packages', 'href' => '#'],
-        ['label' => 'Subscriptions', 'href' => '#'],
-        ['label' => 'Hotspots', 'href' => '#'],
-        ['label' => 'Helpdesk', 'href' => '#'],
+        ['label' => 'Dashboard', 'href' => 'index.php?url=dashboard', 'current' => true],
+        ['label' => 'Packages', 'href' => 'index.php?url=home#packages'],
+        ['label' => 'Subscriptions', 'href' => 'index.php?url=payment'],
+        ['label' => 'Logout', 'href' => 'index.php?url=auth/logout'],
     ];
 ?>
 <header class="page-header portal-header">
 <div class="header-inner">
 <!-- Left: Logo & Collegiate Brand Mark -->
 <div class="portal-brand">
-<a href="#">
+<a href="index.php">
 <div>
 <span class="material-symbols-outlined">wifi</span>
 </div>
@@ -24,11 +29,10 @@
 </a>
 <!-- Desktop Navigation Items -->
 <nav class="desktop-nav">
-<a href="#">Dashboard</a>
-<a href="#">Packages</a>
-<a href="#">Subscriptions</a>
-<a href="#">Hotspots</a>
-<a href="#">Helpdesk</a>
+<a href="index.php?url=dashboard">Dashboard</a>
+<a href="index.php?url=home#packages">Packages</a>
+<a href="index.php?url=payment">Subscriptions</a>
+<a href="index.php?url=auth/logout">Logout</a>
 </nav>
 <?php include __DIR__ . '/mobile-menu.php'; ?>
 </div>
@@ -38,9 +42,11 @@
 <span class="material-symbols-outlined">notifications</span>
 <span></span>
 </button>
-<button aria-label="Help" type="button">
-<span class="material-symbols-outlined">help</span>
+<a href="index.php?url=auth/logout" title="Logout" style="color:inherit; text-decoration:none;">
+<button aria-label="Logout" type="button">
+<span class="material-symbols-outlined">logout</span>
 </button>
+</a>
 <div></div>
 <!-- Authenticated Profile Anchor -->
 <div>
@@ -48,8 +54,8 @@
 <span class="material-symbols-outlined">account_circle</span>
 </div>
 <div>
-<span>Engr. Damilola Adeleke</span>
-<span>STF/2019/4821</span>
+<span><?= htmlspecialchars($currentUser['fullname']) ?></span>
+<span><?= htmlspecialchars($currentUser['matric']) ?></span>
 </div>
 </div>
 </div>
@@ -59,18 +65,16 @@
     $mobileMenuId = 'portal-checkout-mobile-nav';
     $mobileMenuBreakpoint = 'md';
     $mobileMenuLinks = [
-        ['label' => 'Packages', 'href' => '#', 'current' => true],
-        ['label' => 'Dashboard', 'href' => '#'],
-        ['label' => 'Subscriptions', 'href' => '#'],
-        ['label' => 'Hotspots', 'href' => '#'],
-        ['label' => 'Helpdesk', 'href' => '#'],
+        ['label' => 'Packages', 'href' => 'index.php?url=home#packages', 'current' => true],
+        ['label' => 'Dashboard', 'href' => 'index.php?url=dashboard'],
+        ['label' => 'Logout', 'href' => 'index.php?url=auth/logout'],
     ];
 ?>
 <header class="page-header portal-header">
 <div class="header-inner">
 <!-- Brand & Product -->
 <div class="portal-brand">
-<a href="#">
+<a href="index.php">
 <div>
 <span class="material-symbols-outlined" data-icon="wifi_protected_setup">wifi_protected_setup</span>
 </div>
@@ -82,11 +86,9 @@
 </div>
 <!-- Navigation Links -->
 <nav class="desktop-nav">
-<a href="#">Packages</a>
-<a href="#">Dashboard</a>
-<a href="#">Subscriptions</a>
-<a href="#">Hotspots</a>
-<a href="#">Helpdesk</a>
+<a href="index.php?url=home#packages">Packages</a>
+<a href="index.php?url=dashboard">Dashboard</a>
+<a href="index.php?url=auth/logout">Logout</a>
 </nav>
 <?php include __DIR__ . '/mobile-menu.php'; ?>
 <!-- Trailing Cluster -->
@@ -94,15 +96,19 @@
 <button title="Notifications" type="button">
 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
 </button>
-<button title="Help &amp; Support" type="button">
-<span class="material-symbols-outlined" data-icon="help">help</span>
+<a href="index.php?url=auth/logout" title="Logout" style="color:inherit; text-decoration:none;">
+<button title="Logout" type="button">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
 </button>
+</a>
 <div></div>
 <div>
-<img alt="University Staff/Student Avatar" data-alt="Official portrait photograph of a university staff member wearing professional business attire against an institutional academic library background. High contrast, clean corporate lighting, deep navy and warm ambient tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFZqZ0S5bubjiPz13C7-ShB1ouF_9cfdhlY5S8IJA-NVQRbWEyTEs39YOMqBXxR6dY6HlS6ihZCSZ8p8Epd944tQ87dgtTIIaP0-yvI___HO7ZjNxAdNLMc9j-ZQnox3LAnhVj4Bl74r3BDW2s33PJKpiRgAQoF2ueerxr_ffC-ndITD2gzew42omfCXiviOXGZCwGIRXCVJE2VjBro_cY_Y5LY_gDJF6TtYoWMYgpr8m3xDdvG24UFw">
 <div>
-<span>Dr. A. O. Adeleke</span>
-<span>Staff ID: UI/ST/8492</span>
+<span class="material-symbols-outlined">account_circle</span>
+</div>
+<div>
+<span><?= htmlspecialchars($currentUser['fullname']) ?></span>
+<span>Staff ID: <?= htmlspecialchars($currentUser['matric']) ?></span>
 </div>
 </div>
 </div>
