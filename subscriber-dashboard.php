@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/Model/Subscription.php';
+
 $pageTitle = 'UIISP Portal - Subscriber Customer Dashboard';
 $htmlClass = '';
 
@@ -17,22 +19,16 @@ $subscription = [
     'wifi_password'     => 'TechFaculty#2025!',
 ];
 
-$history = [
-    [
-        'package'   => 'Standard Plan (30 Days)',
-        'reference' => 'TXN-UI-883921',
-        'date'      => 'Feb 26, 2025 • 09:14 AM',
-        'amount'    => '₦10,000.00',
-        'status'    => 'Paid',
-    ],
-    [
-        'package'   => 'Standard Plan (30 Days)',
-        'reference' => 'TXN-UI-771204',
-        'date'      => 'Jan 27, 2025 • 14:22 PM',
-        'amount'    => '₦10,000.00',
-        'status'    => 'Paid',
-    ],
-];
+// Recent payment history for the logged-in user only (from MySQL)
+$history = [];
+if (!empty($_SESSION['matric'])) {
+    try {
+        $history = (new Subscription())->getRecentPayments($_SESSION['matric']);
+    } catch (Throwable $e) {
+        $history = [];
+    }
+}
+
 ?>
 <?php include __DIR__ . '/partials/head.php'; ?>
 <body class="dashboard-page">
@@ -161,18 +157,22 @@ $history = [
 <a href="#">View Full History</a>
 </div>
 <div>
+<?php if (empty($history)): ?>
+<p style="padding: 0.75rem 0; color:#6b7280;">No payment history found.</p>
+<?php else: ?>
 <?php foreach ($history as $item): ?>
 <div style="display:flex; justify-content:space-between; align-items:center; padding: 0.75rem 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
   <div>
-    <strong><?= htmlspecialchars($item['package']) ?></strong> (<?= htmlspecialchars($item['reference']) ?>)
-    <div style="font-size:0.85rem; color:#6b7280;"><?= htmlspecialchars($item['date']) ?></div>
+    <strong><?= htmlspecialchars($item['plan']) ?></strong>
+    <div style="font-size:0.85rem; color:#6b7280;"><?= htmlspecialchars(date('M j, Y • h:i A', strtotime($item['date']))) ?></div>
   </div>
   <div>
-    <span style="font-weight:600;"><?= htmlspecialchars($item['amount']) ?></span>
-    <span style="background:#d1fae5; color:#065f46; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:9999px; margin-left:0.5rem;"><?= htmlspecialchars($item['status']) ?></span>
+    <span style="font-weight:600;">₦<?= number_format((float)$item['amount'], 2) ?></span>
+    <span style="background:#d1fae5; color:#065f46; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:9999px; margin-left:0.5rem;">Paid</span>
   </div>
 </div>
 <?php endforeach; ?>
+<?php endif; ?>
 </div>
 </section>
 </main>
