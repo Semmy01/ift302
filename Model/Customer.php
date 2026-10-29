@@ -1,7 +1,7 @@
 <?php
 /**
  * Customer Model (OOP)
- * Handles customer registration, lookup, and password authentication.
+ * Handles customer registration, lookup, authentication, and profile updates.
  */
 require_once __DIR__ . '/Database.php';
 
@@ -28,11 +28,22 @@ class Customer
     }
 
     /**
-     * Authenticate customer by Matric/Staff ID and password.
+     * Authenticate customer by Matric/Staff ID OR Email and password.
      */
-    public function authenticate(string $matric, string $password): ?array
+    public function authenticate(string $identifier, string $password): ?array
     {
-        $user = $this->findByMatric($matric);
+        $identifier = trim($identifier);
+        if (empty($identifier) || empty($password)) {
+            return null;
+        }
+
+        // Try lookup by Matric / Staff ID first
+        $user = $this->findByMatric($identifier);
+
+        // If not found, attempt lookup by Email
+        if (!$user) {
+            $user = $this->findByEmail($identifier);
+        }
 
         if (!$user) {
             return null;
@@ -55,6 +66,7 @@ class Customer
         $stmt->bind_param("s", $matric);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
         return $result ?: null;
     }
 
@@ -64,10 +76,12 @@ class Customer
     public function findByEmail(string $email): ?array
     {
         $db = $this->getDb();
+        $email = strtolower(trim($email));
         $stmt = $db->prepare("SELECT * FROM user WHERE email = ? LIMIT 1");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
         return $result ?: null;
     }
 
@@ -81,6 +95,7 @@ class Customer
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
         return $result ?: null;
     }
 
@@ -90,11 +105,53 @@ class Customer
     public function register(array $data): bool
     {
         $db = $this->getDb();
-        $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
+        $matric   = strtoupper(trim($data['matric'] ?? ''));
+        $fullname = trim($data['fullname'] ?? '');
+        $phone    = trim($data['phone'] ?? '');
+        $email    = strtolower(trim($data['email'] ?? ''));
+        $password = $data['password'] ?? '';
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $db->prepare(
             "INSERT INTO user (matric, fullname, phone, email, password) VALUES (?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param("sssss", $data['matric'], $data['fullname'], $data['phone'], $data['email'], $passwordHash);
-        return $stmt->execute();
+        $stmt->bind_param("sssss", $matric, $fullname, $phone, $email, $passwordHash);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+    /**
+     * Update customer contact info (phone & email).
+     */
+    public function updateContact(string $matric, string $phone, string $email): bool
+    {
+        $db = $this->getDb();
+        $phone = trim($phone);
+        $email = strtolower(trim($email));
+        $stmt = $db->prepare("UPDATE user SET phone = ?, email = ? WHERE matric = ?");
+        $stmt->bind_param("sss", $phone, $email, $matric);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+    /**
+     * Update customer password after verifying old password.
+     */
+    public function changePassword(string $matric, string $oldPassword, string $newPassword): bool
+    {
+        $user = $this->findByMatric($matric);
+        if (!$user || !password_verify($oldPassword, $user['password'])) {
+            return false;
+        }
+
+        $db = $this->getDb();
+        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $db->prepare("UPDATE user SET password = ? WHERE matric = ?");
+        $stmt->bind_param("ss", $newHash, $matric);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
     }
 }
