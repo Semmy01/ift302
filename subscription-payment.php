@@ -3,16 +3,68 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/Model/Subscription.php';
+
 $pageTitle = 'Subscription Checkout & Instant Payment Gateway | UIISP Portal';
 $htmlClass = '';
 
-$pkg = $_GET['package'] ?? 'standard';
 $packages = [
-    'basic'    => ['name' => 'Basic Package — ₦5,000 / 30 Days', 'price' => '₦5,000'],
-    'standard' => ['name' => 'Standard Package — ₦10,000 / 30 Days', 'price' => '₦10,000'],
-    'premium'  => ['name' => 'Premium Package — ₦20,000 / 30 Days', 'price' => '₦20,000'],
+    'basic'    => [
+        'plan'   => 'Basic Package',
+        'name'   => 'Basic Package — ₦5,000 / 30 Days',
+        'price'  => '₦5,000',
+        'amount' => 5000,
+    ],
+    'standard' => [
+        'plan'   => 'Standard Package',
+        'name'   => 'Standard Package — ₦10,000 / 30 Days',
+        'price'  => '₦10,000',
+        'amount' => 10000,
+    ],
+    'premium'  => [
+        'plan'   => 'Premium Package',
+        'name'   => 'Premium Package — ₦20,000 / 30 Days',
+        'price'  => '₦20,000',
+        'amount' => 20000,
+    ],
 ];
 
+// Handle payment form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $matric = $_SESSION['matric'] ?? trim($_POST['matric'] ?? '');
+
+    if (empty($matric)) {
+        $_SESSION['errors'] = ['general' => 'Please log in to complete your subscription purchase.'];
+        header('Location: customer-registration-login.php?tab=login');
+        exit;
+    }
+
+    $pkgKey = $_POST['package'] ?? $_GET['package'] ?? 'standard';
+    $selectedPkg = $packages[$pkgKey] ?? $packages['standard'];
+    $planName = $selectedPkg['plan'];
+    $amount = (int) $selectedPkg['amount'];
+
+    try {
+        $subscriptionModel = new Subscription();
+        $saved = $subscriptionModel->recordPayment($matric, $planName, $amount);
+
+        if ($saved) {
+            $_SESSION['success'] = "Payment successful! Your {$planName} (₦" . number_format($amount) . ") has been activated.";
+            header('Location: subscriber-dashboard.php');
+            exit;
+        } else {
+            $_SESSION['error'] = 'Failed to record subscription payment. Please try again.';
+            header('Location: subscriber-dashboard.php');
+            exit;
+        }
+    } catch (Throwable $e) {
+        $_SESSION['error'] = 'Error processing subscription: ' . $e->getMessage();
+        header('Location: subscriber-dashboard.php');
+        exit;
+    }
+}
+
+$pkg = $_GET['package'] ?? 'standard';
 $selected = $packages[$pkg] ?? $packages['standard'];
 $package  = $selected['name'];
 $price    = $selected['price'];
@@ -78,7 +130,9 @@ $subscriberId   = $_SESSION['matric'] ?? 'UI/ST/8492';
 <h1>Complete Subscription Checkout</h1>
 <p>Review your plan, choose your payment method, and complete payment for instant Wi-Fi activation.</p>
 </div>
-<form method="POST" action="subscriber-dashboard.php" class="checkout-layout">
+<form method="POST" action="subscription-payment.php?package=<?= htmlspecialchars($pkg) ?>" class="checkout-layout">
+<input type="hidden" name="package" value="<?= htmlspecialchars($pkg) ?>">
+<input type="hidden" name="matric" value="<?= htmlspecialchars($subscriberId) ?>">
 <!-- Left Column: Simplified Payment Flow (7 cols) -->
 <section class="checkout-column">
 <!-- Selected Package Summary -->
